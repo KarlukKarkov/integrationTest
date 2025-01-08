@@ -1,3 +1,4 @@
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -5,7 +6,7 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 
 public class OllamaConnection {
-    public static String run(String prompt,String model) {
+    private static String run(String model,String prompt) {
         try {
             // URL of Ollama's API endpoint (replace with actual URL if different)
             String urlString = "http://localhost:11434/api/generate"; // Adjust as needed
@@ -29,5 +30,13 @@ public class OllamaConnection {
             System.out.println("Failed to receive model response!");
             return null;
         }
+    }
+
+    public static String runCodeLlama70b(String prompt){
+        return run("codellama:70b",prompt);
+    }
+
+    public static String runLlama3_3(String prompt){
+        return run("llama3.3",prompt);
     }
 }
