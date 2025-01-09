@@ -1,7 +1,9 @@
-import java.lang.reflect.Field;
+package src;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
+import java.util.Scanner;
 
 public class AIManipuation {
 
@@ -39,7 +41,20 @@ public class AIManipuation {
     public static void main(String[] args) throws NoSuchMethodException {
 
     }
-    public static int[] findMethodStartFinishLine(Method method, String clazz){
+    public static String getMethodBody(Method method,String clazz){
+        int[] indexes=findMethodStartFinishLine(method,clazz);
+        StringBuilder builder= new StringBuilder();
+        Scanner scanner= new Scanner(clazz);
+        int counter=1;
+        while (scanner.hasNextLine()){
+            String currentLine=scanner.nextLine();
+            if((counter>=indexes[0])&&(counter<=indexes[1])){
+                builder.append(currentLine).append("\n");
+            }
+        }
+        return builder.toString();
+    }
+    private static int[] findMethodStartFinishLine(Method method, String clazz){
         int[] indexes= {-1,-1};
         String signature= getMethodSignature(method);
         indexes[0]= findMethodStartLine(clazz,signature);

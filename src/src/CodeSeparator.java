@@ -1,3 +1,5 @@
+package src;
+
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -9,15 +11,26 @@ import java.util.ArrayList;
 public class CodeSeparator {
     public static Class<?> loadClass(String classFilePath) {
         try {
-            URLClassLoader urlClassLoader = URLClassLoader.newInstance(new URL[]{new File(classFilePath).toURI().toURL()});
+            String path= extractPackageName(classFilePath);
+            File classFile = new File(path);
+            URLClassLoader urlClassLoader = URLClassLoader.newInstance(new URL[]{classFile.getParentFile().toURI().toURL()});
 
             // Load the .class file into a Class object using the custom class loader
-            return urlClassLoader.loadClass(findClassName(classFilePath));
+            return urlClassLoader.loadClass(findClassName(path));
         } catch (Exception e) {
             System.out.println("Failed to load file");
             return null;
         }
     } //given absolute path, outputs Class<?> of the path
+    public static String extractPackageName(String packageDeclaration) {
+        if (packageDeclaration == null || packageDeclaration.isEmpty()) {
+            return "";
+        }
+
+        // Remove "package " prefix and trailing ";"
+        return packageDeclaration.replace("package ", "").replace(";", "").trim();
+    }
+
     private static String findClassName(String path){
         if (path == null || path.isEmpty()) {
             return "";

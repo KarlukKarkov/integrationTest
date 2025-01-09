@@ -1,0 +1,6 @@
+package src.AIManipuation;
+package src.CodeSeparator;
+package src.IntegrationTestBuilder;
+package src.Main;
+package src.OllamaConnection;
+package src.PackageExtractor;

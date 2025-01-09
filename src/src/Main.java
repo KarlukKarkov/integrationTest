@@ -1,35 +1,40 @@
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+package src;
+
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
     public static void main(String[] args){
-        String dir= "write/service/class/directory/here";
-        PackageExtractor.getPackageDeclarations(dir);
-        String[] paths= readPaths();
+        boolean flag=true;
+        String[] paths;
+        String dir= "C:\\Users\\inan.ozsahin\\IdeaProjects\\integration\\src";
+
+        if(!flag) paths= PackageExtractor.getPathFromPackageDeclaration(dir);
+        else paths=readPaths();
+
         for(String path: paths) {
             try {
+                System.out.println("1: "+path);
                 Class<?> clazz = CodeSeparator.loadClass(path);
                 String text = IntegrationTestBuilder.buildText(clazz);
                 createFileWithText(text, clazz.getSimpleName() + "Test");
             }catch (Exception e){
-                System.out.println("Failed to write test");
+                System.out.println("FAILED TO WRITE TEST!: "+path);
             }
         }
     }
 
-    public static String[] readPaths(){
+    public static String[] readPaths() {
+        String fileName= "C:\\Users\\inan.ozsahin\\IdeaProjects\\integration\\src\\src\\paths.txt";
         List<String> lines = new ArrayList<>();
-        try (BufferedReader br = new BufferedReader(new FileReader("paths.txt"))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
             String line;
             while ((line = br.readLine()) != null) {
-                lines.add(getAbsolutePaths(line));
+                lines.add(line);
             }
         } catch (IOException e) {
-            System.out.println("Failed to read paths from paths.txt");
+            System.out.println("Failed to read paths from " + fileName + ": " + e.getMessage());
         }
         return lines.toArray(new String[0]);
     } //reads all the paths and returns them as String[]

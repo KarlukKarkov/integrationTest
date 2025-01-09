@@ -1,3 +1,5 @@
+package src;
+
 public class IntegrationTestBuilder {
     public static String text="";
     private static void addNewLine(String str) {
