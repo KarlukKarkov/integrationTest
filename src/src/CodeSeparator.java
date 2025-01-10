@@ -1,27 +1,21 @@
-package src;
+package creator;
 
-import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
+import java.util.HashSet;
 
 public class CodeSeparator {
-    public static Class<?> loadClass(String classFilePath) {
+    public static Class<?> findClass(String classFilePath) {
+        String fullyQualifiedName= extractPackageName(classFilePath);
         try {
-            String path= extractPackageName(classFilePath);
-            File classFile = new File(path);
-            URLClassLoader urlClassLoader = URLClassLoader.newInstance(new URL[]{classFile.getParentFile().toURI().toURL()});
-
-            // Load the .class file into a Class object using the custom class loader
-            return urlClassLoader.loadClass(findClassName(path));
-        } catch (Exception e) {
-            System.out.println("Failed to load file");
+            // Load the class using the fully qualified name
+            return Class.forName(fullyQualifiedName);
+        } catch (ClassNotFoundException e) {
+            System.out.println("Class not found: " + fullyQualifiedName);
             return null;
         }
-    } //given absolute path, outputs Class<?> of the path
+    }
     public static String extractPackageName(String packageDeclaration) {
         if (packageDeclaration == null || packageDeclaration.isEmpty()) {
             return "";
@@ -30,69 +24,46 @@ public class CodeSeparator {
         // Remove "package " prefix and trailing ";"
         return packageDeclaration.replace("package ", "").replace(";", "").trim();
     }
-
-    private static String findClassName(String path){
-        if (path == null || path.isEmpty()) {
-            return "";
-        }
-        int lastDotIndex = path.lastIndexOf(".");
-        if (lastDotIndex == -1 || lastDotIndex == path.length() - 1) {
-            return "";
-        }
-        return path.substring(lastDotIndex + 1);
-    } //given absolute path, outputs name of the class
     public static Method[] getAllMethods(Class<?> clazz) {
         return clazz.getDeclaredMethods();
     } //given Class, returns all methods it contains
-    public static Field[] getInstanceFields(Class<?> clazz) {
-        return clazz.getDeclaredFields();
-
-    } //given Class, returns all fields it contains
-    public static String getImportStatement(Class<?> clazz) {
+    public static void getImportStatement(Class<?> clazz) {
         Package pack = clazz.getPackage();
         String className = clazz.getName().replaceFirst(".*\\.", "");
 
         if (pack != null) {
-            return "import " + pack.getName() + "." + className + ";";
-        } else {
-            return "";
+            CodeSeparator.set.add( "import " + pack.getName() + "." + className + ";\n");
         }
     } //given Class, finds it's import statement
-    public static String getImportStatementsForFields(Field[] fields) {
-        ArrayList<String> imports= new ArrayList<>();
+    public static void getImportStatementsForFields(Field[] fields) {
 
         for (Field field : fields) {
             Package pack = field.getType().getPackage();
             String className = field.getType().getName().replaceFirst(".*\\.", "");
 
             if (pack != null) {
-                imports.add(("import "+pack.getName()+"."+className+";"));
+                CodeSeparator.set.add(("import "+pack.getName()+"."+className+";\n"));
             }
         }
-
-        return imports.toString();
     } //given fields, finds import statements for all of them
-    public static String getImportStatementsForMethodParameters(Method method) {
+    public static void getImportStatementsForMethodParameters(Method method) {
         Parameter[] params = method.getParameters();
-        StringBuilder imports = new StringBuilder();
 
         for (Parameter param : params) {
             Package pack = param.getType().getPackage();
             String className = param.getType().getName().replaceFirst(".*\\.", "");
 
             if (pack != null) {
-                imports.append("import ").append(pack.getName()).append(".").append(className).append(";\n");
+                CodeSeparator.set.add(new StringBuilder().append("import ").append(pack.getName()).append(".").append(className).append(";\n").toString());
             }
         }
-
-        return imports.toString();
     } //given method, finds import statement for it's parameters
-    public static String getImportStatementsForMethodParameters(Method[] methods) {
-        StringBuilder str= new StringBuilder();
+
+    public static void getImportStatementsForMethodParameters(Method[] methods) {
         for(Method m: methods) {
-            str.append(getImportStatementsForMethodParameters(m));
+            getImportStatementsForMethodParameters(m);
+
         }
-        return str.toString();
     } //given methods, finds import statement for all of their parameters
     public static String createPackageStatement(Class<?> clazz) { //change this one according to your own package standardization
         Package pkg = clazz.getPackage();
@@ -103,15 +74,16 @@ public class CodeSeparator {
         }
     } //given class, creates it's package statement
     public static String getAllImportStatements(Class<?> clazz){
-        String str= "";
+        StringBuilder str= new StringBuilder();
+        CodeSeparator.getImportStatementsForFields(clazz.getDeclaredFields());
+        CodeSeparator.getImportStatementsForMethodParameters(clazz.getDeclaredMethods());
+        CodeSeparator.getImportStatement(clazz);
         //import class
-        str=str+ CodeSeparator.getImportStatement(clazz)+"\n";
-        //import Fields
-        str=str+ CodeSeparator.getImportStatementsForFields(CodeSeparator.getInstanceFields(clazz))+"\n";
-        //import Method parameters
-        str=str+ CodeSeparator.getImportStatementsForMethodParameters(CodeSeparator.getAllMethods(clazz))+"\n";
+        for (String importStatement: CodeSeparator.set){
+            str.append(importStatement);
+        }
 
-        return str;
+        return str.toString();
     } //given class, creates all of it's import statements
     //Method initializing
     public static String createAllMethods(Method[] methods){
@@ -124,7 +96,7 @@ public class CodeSeparator {
     }
     public static String createMethod(String methodName,Method method){
         String text="";
-        text=text+"\tpublic void "+(method.getName())+"IntegrationTest()\n";
+        text=text+"\tpublic void "+(method.getName())+"IntegrationTest(){\n";
         switch (methodName){
             case "save": {
                 text =text+ createSaveMethod(method);
@@ -161,4 +133,5 @@ public class CodeSeparator {
 
         return text;
     }
+    static HashSet<String> set= new HashSet<>();
 }

@@ -38,11 +38,14 @@ public class AIManipuation {
         return signature.toString();
     } //exactly same except param names changed with args0,args1 ext.
 
-    public static void main(String[] args) throws NoSuchMethodException {
+    public static void main(String[] args) {
+        ClassReader reader= new ClassReader();
+        getMethodBody(reader.getDeclaredMethod(),reader.readClass());
 
     }
     public static String getMethodBody(Method method,String clazz){
         int[] indexes=findMethodStartFinishLine(method,clazz);
+        System.out.println(indexes[0]+" "+indexes[1]);
         StringBuilder builder= new StringBuilder();
         Scanner scanner= new Scanner(clazz);
         int counter=1;
@@ -51,6 +54,7 @@ public class AIManipuation {
             if((counter>=indexes[0])&&(counter<=indexes[1])){
                 builder.append(currentLine).append("\n");
             }
+            counter++;
         }
         return builder.toString();
     }
@@ -76,6 +80,8 @@ public class AIManipuation {
         String[] lines = clazz.split("\n");
         for (int i = 0; i < lines.length; i++) {
             String trimmedLine = lines[i].trim();
+            //System.out.println(i+" "+trimmedLine);
+            //System.out.println(line.trim());
             if (compareMethodSignatures(line.trim(),trimmedLine)) {
                 return i + 1; // Line numbers start from 1
             }
@@ -88,14 +94,13 @@ public class AIManipuation {
         String normalizedJavaFileLine = normalizeParameterNames(javaFileLine);
 
         // Compare normalized signatures
+        System.out.println(normalizedGeneratedSignature);
+        System.out.println(normalizedJavaFileLine);
         return normalizedGeneratedSignature.equals(normalizedJavaFileLine);
     }
 
     private static String normalizeParameterNames(String methodSignature) {
-        return methodSignature.replaceAll("\\b\\w+\\s+(\\w+)\\b", "$1").replaceAll("\\s+\\w+\\s*,", ",").replaceAll("\\s+\\w+\\s*\\)", ")");
+        return methodSignature.replaceAll("\\b\\w+\\s+(\\w+)\\b","$1").replaceAll("\\s*,\\s*", ",").replaceAll("\\s*\\)\\s*", ")");
     }
 
 }
-
-
-
