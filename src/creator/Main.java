@@ -1,4 +1,4 @@
-package src;
+package creator;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -16,9 +16,9 @@ public class Main {
         for(String path: paths) {
             try {
                 System.out.println("1: "+path);
-                Class<?> clazz = CodeSeparator.loadClass(path);
-                String text = IntegrationTestBuilder.buildText(clazz);
-                createFileWithText(text, clazz.getSimpleName() + "Test");
+                //Class<?> clazz = CodeSeparator.loadClass(path);
+                //String text = IntegrationTestBuilder.buildText(clazz);
+                //createFileWithText(text, clazz.getSimpleName() + "Test");
             }catch (Exception e){
                 System.out.println("FAILED TO WRITE TEST!: "+path);
             }

@@ -1,4 +1,4 @@
-package src;
+package creator;
 
 public class IntegrationTestBuilder {
     public static String text="";
