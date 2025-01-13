@@ -7,7 +7,6 @@ public class ClassReader {
     public String readClass(){
         return "package creator;\n" +
                 "\n" +
-                "import java.io.File;\n" +
                 "import java.lang.reflect.Method;\n" +
                 "import java.lang.reflect.Modifier;\n" +
                 "import java.lang.reflect.Parameter;\n" +
@@ -42,11 +41,10 @@ public class ClassReader {
                 "\n" +
                 "        // Add closing parenthesis and opening brace\n" +
                 "        signature.append(\"){\");\n" +
-                "\n" +
                 "        return signature.toString();\n" +
                 "    } //exactly same except param names changed with args0,args1 ext.\n" +
                 "\n" +
-                "    public static void main(String[] args){\n" +
+                "    public static void main(String[] args) {\n" +
                 "        ClassReader reader= new ClassReader();\n" +
                 "        getMethodBody(reader.getDeclaredMethod(),reader.readClass());\n" +
                 "\n" +
@@ -69,15 +67,15 @@ public class ClassReader {
                 "    private static int[] findMethodStartFinishLine(Method method, String clazz){\n" +
                 "        int[] indexes= {-1,-1};\n" +
                 "        String signature= getMethodSignature(method);\n" +
+                "        System.out.println(signature);\n" +
                 "        indexes[0]= findMethodStartLine(clazz,signature);\n" +
-                "        indexes[1]= findMethodFinishLine(clazz,indexes[0]);\n" +
+                "        indexes[1]=findMethodFinishLine(clazz,indexes[0]);\n" +
                 "        return indexes;\n" +
                 "    }\n" +
                 "    private static int findMethodFinishLine(String clazz,int startLine){\n" +
                 "        String[] lines = clazz.split(\"\\n\");\n" +
                 "        for (int i = 0; i < lines.length; i++) {\n" +
-                "            String trimmedLine = lines[i].trim();\n" +
-                "            if (compareMethodSignatures(trimmedLine,\"}\")) {\n" +
+                "            if (compareMethodSignatures(lines[i],\"\\s\\s\\s\\s}\")) {\n" +
                 "                if(i>startLine)\n" +
                 "                    return i + 1; // Line numbers start from 1\n" +
                 "            }\n" +
@@ -88,25 +86,61 @@ public class ClassReader {
                 "        String[] lines = clazz.split(\"\\n\");\n" +
                 "        for (int i = 0; i < lines.length; i++) {\n" +
                 "            String trimmedLine = lines[i].trim();\n" +
-                "            System.out.println(i+\" \"+trimmedLine);\n" +
-                "            System.out.println(line.trim());\n" +
+                "            //System.out.println(i+\" \"+trimmedLine);\n" +
                 "            if (compareMethodSignatures(line.trim(),trimmedLine)) {\n" +
                 "                return i + 1; // Line numbers start from 1\n" +
                 "            }\n" +
                 "        }\n" +
                 "        return -1; // Return -1 if the method signature is not found\n" +
                 "    }\n" +
-                "    private static boolean compareMethodSignatures(String generatedSignature, String javaFileLine) { //works correctly\n" +
+                "    private static boolean compareMethodSignatures(String generatedSignature, String javaFileLine)  { //works correctly\n" +
                 "        // Normalize parameter names in both signatures\n" +
                 "        String normalizedGeneratedSignature = normalizeParameterNames(generatedSignature);\n" +
                 "        String normalizedJavaFileLine = normalizeParameterNames(javaFileLine);\n" +
+                "\n" +
+                "        if(normalizedJavaFileLine.startsWith(\"public\")){\n" +
+                "            System.out.println(normalizedGeneratedSignature);\n" +
+                "\n" +
+                "        }\n" +
                 "        // Compare normalized signatures\n" +
                 "        return normalizedGeneratedSignature.equals(normalizedJavaFileLine);\n" +
                 "    }\n" +
                 "\n" +
                 "    private static String normalizeParameterNames(String methodSignature) {\n" +
-                "        return methodSignature.replaceAll(\"\\\\b\\\\w+\\\\s+(\\\\w+)\\\\b\",\"$1\").replaceAll(\"\\\\s*,\\\\s*\", \",\").replaceAll(\"\\\\s*\\\\)\\\\s*\", \")\");\n" +
+                "        if (methodSignature.matches(\"^(public|private|static)\\\\s+.*\")) {\n" +
+                "            // Find the position of the opening and closing parentheses for the parameter list\n" +
+                "            int startIdx = methodSignature.indexOf('(');\n" +
+                "            int endIdx = methodSignature.indexOf(')');\n" +
+                "            // Extract the method signature excluding the parameter list\n" +
+                "            if(startIdx!=-1) {\n" +
+                "                String methodHeader = methodSignature.substring(0, startIdx + 1) + methodSignature.substring(endIdx);\n" +
+                "                // Extract the parameter list and split by commas\n" +
+                "                String parameterList = methodSignature.substring(startIdx + 1, endIdx);\n" +
+                "                String[] parameters = parameterList.split(\",\");\n" +
+                "                StringBuilder normalizedParameters = new StringBuilder();\n" +
+                "                for (String param : parameters) {\n" +
+                "                    // For each parameter, split it by space to get the type and remove the name\n" +
+                "                    String[] parts = param.trim().split(\"\\\\s+\");\n" +
+                "                    if (parts.length > 0) {\n" +
+                "                        normalizedParameters.append(parts[0]).append(\",\"); // Add only the type\n" +
+                "                    }\n" +
+                "                }\n" +
+                "\n" +
+                "                // Remove the last comma if there are parameters\n" +
+                "                if (normalizedParameters.length() > 0) {\n" +
+                "                    normalizedParameters.deleteCharAt(normalizedParameters.length() - 1);\n" +
+                "                }\n" +
+                "                StringBuilder builder = new StringBuilder();\n" +
+                "                builder.append(methodHeader.substring(0, startIdx + 1));\n" +
+                "                builder.append(normalizedParameters);\n" +
+                "                builder.append(\"){\");\n" +
+                "                // Rebuild the method signature with normalized parameters\n" +
+                "                return builder.toString();\n" +
+                "            }\n" +
+                "        }\n" +
+                "        return methodSignature;\n" +
                 "    }\n" +
+                "\n" +
                 "\n" +
                 "}";
     }
