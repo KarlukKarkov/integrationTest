@@ -1,4 +1,4 @@
-package creator;
+package creator.ai;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -44,7 +44,6 @@ public class AIManipuation {
     }
     public static String getMethodBody(Method method,String clazz){
         int[] indexes=findMethodStartFinishLine(method,clazz);
-        //System.out.println(indexes[0]+" "+indexes[1]);
         StringBuilder builder= new StringBuilder();
         Scanner scanner= new Scanner(clazz);
         int counter=1;

@@ -1,4 +1,4 @@
-package creator;
+package creator.ai;
 
 import java.lang.reflect.Method;
 

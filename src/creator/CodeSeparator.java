@@ -94,6 +94,17 @@ public class CodeSeparator {
         }
         return text.append("\n").toString();
     }
+    public static Class<?> loadClass(String path){
+        try {
+            String className = path.replace("package", "").trim();
+            ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+            return classLoader.loadClass(className);
+        }catch (Exception e){
+            System.out.println("Failed to load class:"+path);
+        }
+        return null;
+    }
+
     public static String createMethod(String methodName,Method method){
         String text="";
         text=text+"\tpublic void "+(method.getName())+"IntegrationTest(){\n";
