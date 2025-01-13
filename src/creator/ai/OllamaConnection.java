@@ -33,11 +33,11 @@ public class OllamaConnection {
         }
     }
 
-    public static String runCodeLlama70b(String prompt){
+    private static String runCodeLlama70b(String prompt){
         return run("codellama:70b",prompt);
     }
 
-    public static String runLlama3_3(String prompt){
+    private static String runLlama3_3(String prompt){
         return run("llama3.3",prompt);
     }
 }

@@ -37,11 +37,7 @@ public class AIManipuation {
         return signature.toString();
     } //exactly same except param names changed with args0,args1 ext.
 
-    public static void main(String[] args) {
-        ClassReader reader= new ClassReader();
-        getMethodBody(reader.getDeclaredMethod(),reader.readClass());
 
-    }
     public static String getMethodBody(Method method,String clazz){
         int[] indexes=findMethodStartFinishLine(method,clazz);
         StringBuilder builder= new StringBuilder();
@@ -59,7 +55,6 @@ public class AIManipuation {
     private static int[] findMethodStartFinishLine(Method method, String clazz){
         int[] indexes= {-1,-1};
         String signature= getMethodSignature(method);
-        System.out.println(signature);
         indexes[0]= findMethodStartLine(clazz,signature);
         indexes[1]=findMethodFinishLine(clazz,indexes[0]);
         return indexes;
@@ -90,10 +85,6 @@ public class AIManipuation {
         String normalizedGeneratedSignature = normalizeParameterNames(generatedSignature);
         String normalizedJavaFileLine = normalizeParameterNames(javaFileLine);
 
-        if(normalizedJavaFileLine.startsWith("public")){
-            System.out.println(normalizedGeneratedSignature);
-
-        }
         // Compare normalized signatures
         return normalizedGeneratedSignature.equals(normalizedJavaFileLine);
     }
