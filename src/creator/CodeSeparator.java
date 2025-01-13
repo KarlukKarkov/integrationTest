@@ -6,24 +6,7 @@ import java.lang.reflect.Parameter;
 import java.util.HashSet;
 
 public class CodeSeparator {
-    public static Class<?> findClass(String classFilePath) {
-        String fullyQualifiedName= extractPackageName(classFilePath);
-        try {
-            // Load the class using the fully qualified name
-            return Class.forName(fullyQualifiedName);
-        } catch (ClassNotFoundException e) {
-            System.out.println("Class not found: " + fullyQualifiedName);
-            return null;
-        }
-    }
-    public static String extractPackageName(String packageDeclaration) {
-        if (packageDeclaration == null || packageDeclaration.isEmpty()) {
-            return "";
-        }
 
-        // Remove "package " prefix and trailing ";"
-        return packageDeclaration.replace("package ", "").replace(";", "").trim();
-    }
     public static Method[] getAllMethods(Class<?> clazz) {
         return clazz.getDeclaredMethods();
     } //given Class, returns all methods it contains

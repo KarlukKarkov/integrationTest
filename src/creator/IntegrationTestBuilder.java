@@ -5,11 +5,7 @@ public class IntegrationTestBuilder {
     private static void addNewLine(String str) {
         text=text+str+"\n";
     }
-    private static void addNewLine(String[] strings) {
-        for(String str: strings) {
-            addNewLine(str);
-        }
-    }
+
     private static void addTabNewLine(String str) {
         addNewLine("\t"+str);
     }
